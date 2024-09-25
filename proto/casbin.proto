@@ -1,0 +1,664 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.proto";
+option java_outer_classname = "CasbinProto";
+option go_package = "./;proto";
+option csharp_namespace = "CasbinOrg.Grpc";
+
+package proto;
+
+// The Casbin service definition.
+service Casbin {
+  // 在不进行特殊说明的情况下，所有的接口都默认需要额外携带两个参数：命名空间（enforcerName）和域（domain）
+  // 命名说明：用户User，用户类型UserCls，角色Role，角色类型RoleCls，资源Object，资源类型ObjectCls；
+  // 当给定角色类型和资源类型时，从产品设计逻辑上而言，在事实上已经完全确定了相应的权限类型，因此建议客户端调用过程中，对接口进行二次封装，隐藏一部分调用过程中的权限类型细节；
+  // 更多设计相关的信息请参考https://oa-pan.eastmoney.com/ddwiki/space/doc?spaceId=15&fileUuid=134ff88c-8924-4fb8-8b64-b1e9f446b8e1
+  // http接口请参考文档https://apifox.com/apidoc/shared-8508914b-147d-40a8-bb44-b831d5ee23e5
+
+  /* 权限单元管理接口，增删权限单元 */
+  /**
+    * @description 此接口已废弃，建议使用AddPermissionUnitV2
+    */
+  rpc AddPermissionUnit (PermissionUnitRequest) returns (PermissionUnitReply) {}
+  rpc AddPermissionUnits (PermissionUnitsRequest) returns (PermissionUnitsReply) {}
+  /**
+    * @description 此接口已废弃，建议使用RemovePermissionUnitV2
+    */
+  rpc RemovePermissionUnit (PermissionUnitRequest) returns (PermissionUnitReply) {}
+  rpc RemovePermissionUnits (PermissionUnitsRequest) returns (PermissionUnitsReply) {}
+  /**
+    * @description 在指定的域下添加一个或多个权限单元V2，一个权限单元V2包含一个用户，一个角色类型，若干权限，一个资源
+    * @params permissionUnitsV2，权限单元V2，一个权限单元V2包含一个用户，一个角色类型，若干权限，含义为一个用户因为某个角色类型对某个资源拥有某些权限
+    * @params checkExistFlag，当设定为True时，添加过程中将检查该用户是否已经拥有相应的角色，如果存在则不会重复添加，当设定为False时，添加过程中将不会检查该用户是否已经拥有相应的角色，通常用于批量添加
+    * @return 返回实际添加的权限单元数量
+    * @addition 同时添加多个权限单元时，建议通过批量接口进行添加，以提高效率
+    */
+  rpc AddPermissionUnitV2 (PermissionUnitV2Request) returns (IntReply) {}
+  rpc AddPermissionUnitsV2 (PermissionUnitsV2Request) returns (IntReply) {}
+  /**
+    * @description 在指定的域下删除一个或多个权限单元V2，一个权限单元V2包含一个用户，一个角色类型，若干权限，一个资源
+    * @params permissionUnitsV2，权限单元V2，一个权限单元V2包含一个用户，一个角色类型，若干权限，一个资源
+    * @return 返回实际删除的权限单元数量
+    * @addition 同时删除多个权限单元时，建议通过批量接口进行删除，以提高效率
+    */
+  rpc RemovePermissionUnitV2 (PermissionUnitV2Request) returns (IntReply) {}
+  rpc RemovePermissionUnitsV2 (PermissionUnitsV2Request) returns (IntReply) {}
+  /**
+    * @description 删除一个用户/角色实例直接相关所有相关的权限规则
+    * @params userOrRole，用户或角色
+    */
+  rpc RemovePermissionUnitsV2AndGroupPoliciesForUserOrRole (UserOrRoleRequest) returns (EmptyReply) {}
+  /**
+    * @description 删除一个资源直接相关所有相关的权限规则，通常用于删除资源时使用
+    * @params object，资源
+    */
+  rpc RemovePermissionUnitsV2AndGroupPoliciesForObject (ObjectRequest) returns (EmptyReply) {}
+
+  /* 权限信息接口，用于全量地获取某个用户或者物体的权限 */
+  /**
+    * @description 在指定的域下，获取某个用户或某个角色拥有的所有权限信息
+    * @param userOrRole 用户或角色
+    * @param searchChildObjectsFlag 是否搜索子资源
+    * @param maxSearchChildObjectsLevel 最大搜索子资源的层数
+    * @return 返回权限信息，包含p规则（角色实例对资源的权限），用户组规则（用户、用户组和角色实例的继承关系）和资源组规则（资源、资源组的继承关系）
+    */
+  rpc GetPermissionInfoForUserOrRole (UserOrRoleWithFlagRequest) returns (PermissionInfoReply) {}
+  /**
+    * @description 在指定的域下，获取某个资源拥有的所有权限信息
+    * @param object 资源
+    * @param searchChildUsersOrRolesFlag 是否搜索子用户或角色
+    * @param maxSearchChildUsersOrRolesLevel 最大搜索子用户或角色的层数
+    * @return 返回权限信息，包含p规则（角色实例对资源的权限），用户组规则（用户、用户组和角色实例的继承关系）和资源组规则（资源、资源组的继承关系）
+    */
+  rpc GetPermissionInfoForObject (ObjectWithFlagRequest) returns (PermissionInfoReply) {}
+  /**
+    * @description 在指定的域下，获取某个用户和某个资源拥有的所有权限信息
+    * @param userOrRole 用户或角色
+    * @param object 资源
+    * @return 返回权限信息，包含p规则（角色实例对资源的权限），用户组规则（用户、用户组和角色实例的继承关系）和资源组规则（资源、资源组的继承关系）
+    * @addition 此接口仅返回同时与指定用户和指定资源相关的权限信息
+    */
+  rpc GetPermissionInfoForUserOrRoleAndObject (UserOrRoleAndObjectRequest) returns (PermissionInfoReply) {}
+  /**
+    * @description 在指定的域下，将一个用户或角色实例的权限复制到另一个用户或角色实例
+    * @param oldUserOrRole 被复制的用户或角色
+    * @param newUserOrRole 复制到的用户或角色
+    * @return oldUserOrRole拥有的所有权限信息，不含物体组信息
+    * @addition 系统将使用浅复制，不创建新的角色实例，而是直接将权限规则进行替换
+    * @addition 调用时，输入的oldUserOrRole必须在用户树上为叶子节点，尝试替换非叶子节点将直接报错
+    */
+  rpc ReplacePermissionInfoForUserOrRole(ReplacePermissionInfoForUserOrRoleRequest) returns (PermissionInfoReply) {}
+  
+  /* 类似ACL的查询接口，通过用户、权限、资源进行查询 */
+  /**
+    * @description 类似ACL的接口，用户/角色 + 权限 + 资源类型 -> 资源列表
+    * @param user 用户或角色
+    * @param permission 权限
+    * @param objectCls 资源类型，不允许为空
+    * @param objectGroup 资源组，限定搜索范围，如果为空，则不限制资源组，否则只会搜索指定资源组的资源
+    * @return 返回用户有权限的资源列表
+    */
+  rpc GetObjectsForUserWithPermission (AclSearchRequest) returns (ArrayReply) {}
+  /**
+    * @description 类似ACL的接口，用户/角色 + 权限 + 资源类型 -> 资源列表
+    * @param user 用户或角色
+    * @param permissions 权限列表，允许指定多个权限，只需要用户拥有其中一个权限即认为用户有权限
+    * @param objectCls 资源类型，不允许为空
+    * @param objectGroup 资源组，限定搜索范围，如果为空，则不限制资源组，否则只会搜索指定资源组的资源
+    * @param searchChildObjectsFlag 是否递归搜索子资源
+    * @param reverseObjectsFlag 是否反转资源搜索路径，反转后，用户会因为对子资源有权限而被认为对父资源也有权限
+    * @return 返回用户有权限的资源列表
+    * @addition 此接口是对上一接口的扩展，可以指定多个权限进行类似or的拼接，可以选择是否递归搜索子资源，可以反转资源权限搜索路径
+    */
+  rpc GetObjectsForUserWithPermissionsEx (AclSearchExRequest) returns (ArrayReply) {}
+  /**
+    * @description 类似ACL的接口，用户/角色 + 权限 + 根资源（可选） + 搜索方向 + 搜索限制（可选） -> 资源树
+    * @param user 用户或角色
+    * @param permissions 权限列表，允许指定多个权限，只需要用户拥有其中一个权限即认为用户有权限
+    * @param object 根资源，搜索的起点，如果为空，则会搜索用户所有有权限的资源，否则根据搜索方向从根资源开始匹配用户有权限的资源
+    * @param reverseObjectsFlag 是否反转资源搜索结果，反转后，用户会因为对子资源有权限而被认为对父资源也有权限
+    * @param objectClsPatterns 指定资源类型的列表，如果为空，则不限制资源类型，否则只会搜索指定类型的资源
+    * @return 以树结构返回的资源列表
+    * @addition 此接口主要用于搜索用户的资源树，将以树的结构返回用户有权限的资源，非常适合需要在前端展示用户有权限的资源树的场景
+    */
+  rpc GetObjectTreesForUserWithPermissions (AclSearchForObjectTreesRequest) returns (GroupPoliciesReply) {}
+  /**
+    * @description 类似ACL的接口，用户/角色 + 资源 -> 权限列表
+    * @param user 用户或角色
+    * @param object 资源
+    * @return 权限列表
+    */
+  rpc GetPermissionsForUserWithObject (AclSearchRequest) returns (ArrayReply) {}
+  /**
+    * @description 类似ACL的接口，用户/角色 + 资源 -> 权限列表
+    * @param user 用户或角色
+    * @param objects 资源列表
+    * @return 针对每一个资源的权限列表
+    * @addition 此接口是对上一接口的扩展，可以指定多个资源，返回针对每一个资源的权限列表
+    */
+  rpc GetPermissionsForUserWithObjectsEx (AclSearchExRequest) returns (PermissionsWithObjectListReply) {}
+  /**
+    * @description 类似ACL的接口，权限 + 资源 -> 用户和角色列表
+    * @param object 资源列表
+    * @param permission 权限
+    * @return 拥有权限的用户
+    */
+  rpc GetUsersOrRolesForObjectWithPermission (AclSearchRequest) returns (ArrayReply) {}
+  /**
+    * @description 类似ACL的接口，用户/角色 + 权限 + 资源 -> 二元判断
+    * @param user 用户或角色
+    * @param permission 权限
+    * @param object 资源
+    * @return 用户是否对指定的资源拥有相应的权限
+    */
+  rpc CheckPermission (AclSearchRequest) returns (BoolReply) {}
+  rpc BatchCheckPermission (BatchAclSearchRequest) returns (BoolArrayReply) {}
+
+  /* 以角色为核心的查询接口，常常用于需要暴露RBAC的细节给用户的情况 */
+  /**
+    * @description 资源查询的接口，用户 + 角色类型 + 资源类型 -> 资源列表
+    * @param user 用户或角色
+    * @param roleCls 角色类型
+    * @return 用户拥有特定角色类型的资源列表
+  */
+  rpc GetObjectsForUserWithRoleCls (RoleSearchRequest) returns (ArrayReply) {}
+  /**
+    * @description 角色查询的接口，用户 + 资源 -> 角色列表
+    * @param user 用户或角色
+    * @param object 资源
+    * @return 特定资源和用户相关的角色实例列表
+    */
+  rpc GetRolesForUserWithObject (RoleSearchRequest) returns (ArrayReply) {}
+  /**
+    * @description 用户的查询接口，角色类型 + 资源 -> 用户或角色列表
+    * @param roleCls 角色类型
+    * @param object 资源
+    * @return 哪些用户对资源拥有特定的角色
+    */
+  rpc GetUsersOrRolesForObjectWithRoleCls (RoleSearchRequest) returns (ArrayReply) {}
+  /**
+    * @description 二元判断接口，用户 + 角色类型 + 资源 -> 二元判断
+    * @param user 用户或角色
+    * @param roleCls 角色类型
+    * @param object 资源
+    * @return 用户是否具有特定的角色
+    */
+  rpc CheckRole (RoleSearchRequest) returns (BoolReply) {}
+
+  /* 用户组管理接口 */
+  /**
+    * @description 在指定的域下添加角色继承关系，或用户继承关系，或用户和角色的绑定关系。
+    * @param child，子用户
+    * @param parent，父用户，通常是用户组或者角色实例
+    * @return 返回是否添加成功
+    * @addition 允许多级别嵌套，但是最高不能超过10级
+    * @addition 添加过程本身是幂等的，重复添加不会产生多个权限规则
+    */
+  rpc AddUserOrRoleForUserOrRole (GroupPolicyRequest) returns (BoolReply) {}
+  rpc AddUsersOrRolesForUsersOrRoles (GroupPoliciesRequest) returns (BoolReply) {}
+  /**
+    * @description 在指定的域下删除角色继承关系，或用户继承关系，或用户和角色的绑定关系。
+    * @param child，子用户
+    * @param parent，父用户，通常是用户组或者角色实例
+    * @return 返回是否删除成功
+    * @addition 删除过程本身是幂等的，重复删除不会报错，而是返回false
+    */
+  rpc RemoveUserOrRoleForUserOrRole (GroupPolicyRequest) returns (BoolReply) {}
+  rpc RemoveUsersOrRolesForUsersOrRoles (GroupPoliciesRequest) returns (BoolReply) {}
+  /**
+    * @description 获取指定的用户或角色的所有父用户和父角色，child->parents
+    * @param userOrRole，用户或角色
+    * @return 返回从当前用户或角色开始的继承树
+    * @addition 会返回所有具有继承了该角色的所有角色和用户，需要自行根据前缀区分
+    */
+  rpc GetUsersOrRolesForUserOrRole (UserOrRoleRequest) returns (GroupPoliciesReply) {}
+  rpc GetUsersOrRolesForUsersOrRoles (UsersOrRolesRequest) returns (GroupPoliciesWithRootListReply) {}
+  /**
+    * @description 获取指定的用户或角色的所有子用户和角色, parent->children
+    * @param userOrRole，用户或角色
+    * @return 返回从当前节点开始的继承树
+    * @addition 会返回所有具有继承了该角色的所有角色和用户，需要自行根据前缀区分
+    */
+  rpc GetUsersOrRolesInUserOrRole (UserOrRoleRequest) returns (GroupPoliciesReply) {}
+  rpc GetUsersOrRolesInUsersOrRoles (UsersOrRolesRequest) returns (GroupPoliciesWithRootListReply) {}
+  /**
+    * @description 获取指定的用户或角色的所有父用户和父角色，child->parents
+    * @param userOrRole，用户或角色
+    * @param userOrRoleClsPatterns，匹配规则
+    * @return 返回从当前节点开始的继承树
+    * @addition 会返回所有具有继承了该角色的所有角色和用户，需要自行根据前缀区分
+    * @addition 此接口是对上一接口的扩展，自动按照广度优先进行级联搜索，完成搜索后按照指定的pattern对搜索结果进行过滤，只返回匹配的用户和角色，比如搜索到/u/user_group/1 -> /u/user/1 -> /u/sub_user/1，如果pattern为/u/user_group/ -> /u/user，则只返回/u/user_group/1 -> /u/user/1，需要匹配的路径必须是一个长度大于2的列表
+    */
+  rpc GetUsersOrRolesForUserOrRoleWithPattern (UserOrRoleWithPatternRequest) returns (GroupPoliciesReply) {}
+  /**
+    * @description 获取继承了指定的用户或角色的所有用户和角色, parent->children
+    * @param userOrRole，用户或角色
+    * @param userOrRoleClsPatterns，匹配规则
+    * @return 返回从当前节点开始的继承树
+    * @addition 会返回所有具有继承了该角色的所有角色和用户，需要自行根据前缀区分
+    * @addition 自动按照广度优先进行级联搜索，完成搜索后按照指定的pattern对搜索结果进行过滤，只返回匹配的用户和角色，比如搜索到/u/user_group/1 -> /u/user/1 -> /u/sub_user/1，如果pattern为/u/user_group/ -> /u/user，则只返回/u/user_group/1 -> /u/user/1，需要匹配的路径必须是一个长度大于2的列表
+    */
+  rpc GetUsersOrRolesInUserOrRoleWithPattern (UserOrRoleWithPatternRequest) returns (GroupPoliciesReply) {}
+  
+  /* 物体组管理接口，与用户组管理接口非常类似 */
+  /**
+    * @description 在指定的域下添加资源继承关系
+    * @param child，子物体
+    * @parma parent，父物体
+    * @return 返回是否添加成功
+    * @addition 允许多级别嵌套，但是最高不能超过10级
+    * @addition 添加过程本身是幂等的，重复添加不会产生多个权限规则
+  */
+  rpc AddObjectForObject (GroupPolicyRequest) returns (BoolReply) {}
+  rpc AddObjectsForObjects (GroupPoliciesRequest) returns (BoolReply) {}
+  /**
+    * @description 在指定的域下删除资源继承关系
+    * @param child，子物体
+    * @parma parent，父物体
+    * @return 返回是否删除成功
+    * @addition 允许多级别嵌套，但是最高不能超过10级
+    * @addition 添加过程本身是幂等的，重复删除不会报错
+  */
+  rpc RemoveObjectForObject (GroupPolicyRequest) returns (BoolReply) {}
+  rpc RemoveObjectsForObjects (GroupPoliciesRequest) returns (BoolReply) {}
+  /**
+    * @description 获取指定的物体的所有父物体，child->parents
+    * @param object，物体
+    * @return 返回从当前物体开始的继承树
+    */
+  rpc GetObjectsForObject (ObjectRequest) returns (GroupPoliciesReply) {}
+  rpc GetObjectsForObjects (ObjectsRequest) returns (GroupPoliciesWithRootListReply) {}
+  /**
+    * @description 获取指定的物体的所有子物体, parent->children
+    * @param object，物体
+    * @return 返回从当前物体开始的继承树
+    */
+  rpc GetObjectsInObject (ObjectRequest) returns (GroupPoliciesReply) {}
+  rpc GetObjectsInObjects (ObjectsRequest) returns (GroupPoliciesWithRootListReply) {}
+  /**
+    * @description 获取指定的物体的所有父物体，child->parents
+    * @param object，物体
+    * @param objectsPatterns，匹配规则
+    * @return 返回从当前节点开始的继承树
+    * @addition 自动按照广度优先进行级联搜索，完成搜索后按照指定的pattern对搜索结果进行过滤，只返回匹配的资源，比如搜索到/o/ci/idc/1 -> /o/ci/server_room/1 -> /o/ci/server/1，如果pattern为/o/ci/idc/ -> /o/ci/server_room/，则只返回/o/ci/idc/1 -> /o/ci/server_room/1，需要匹配的路径必须是一个长度大于2的列表
+    */
+  rpc GetObjectsForObjectWithPattern (ObjectWithPatternRequest) returns (GroupPoliciesReply) {}
+  /**
+    * @description 获取指定的物体的所有子物体, parent->children
+    * @param object，物体
+    * @param objectsPatterns，匹配规则
+    * @return 返回从当前节点开始的继承树
+    * @addition 自动按照广度优先进行级联搜索，完成搜索后按照指定的pattern对搜索结果进行过滤，只返回匹配的资源，比如搜索到/o/ci/idc/1 -> /o/ci/server_room/1 -> /o/ci/server/1，如果pattern为/o/ci/idc/ -> /o/ci/server_room/，则只返回/o/ci/idc/1 -> /o/ci/server_room/1，需要匹配的路径必须是一个长度大于2的列表
+    */
+  rpc GetObjectsInObjectWithPattern (ObjectWithPatternRequest) returns (GroupPoliciesReply) {}
+
+  /* 预制角色管理接口 */
+  /**
+  * @description 在指定的域下添加一个“角色权限单元”，预先绑定某些物体
+  * @param rolePermissionUnit.role，角色实例
+  * @param rolePermissionUnit.roleCls，角色类型，与角色实例只需要指定一个，当角色实例为空时，则会通过角色类型构造角色实例
+  * @param rolePermissionUnit.permissionsWithObject，角色对哪些物体拥有什么权限
+  * @param replace，为True时，向同一个角色重复添加规则将删除原有的规则，否则只新增规则
+  * @return 返回权限有新增的角色
+  * @addition 完成预制角色添加后，可以使用AddUserOrRoleForUserOrRole将角色实例绑定至用户
+  */
+  rpc AddRolePermissionUnit (RolePermissionUnitRequest) returns (RolePermissionUnitReply) {}
+  /**
+    * @description 在指定的域下删除“角色权限单元”
+    * @param userOrRole，角色实例
+    * @return 返回是否删除成功
+    * @addition 删除过程中不校验角色是否存在，删除一个不存在的角色权限单元并不会导致报错
+    */
+  rpc RemoveRolePermissionUnit (UserOrRoleRequest) returns (BoolReply) {}
+  rpc RemoveRolePermissionUnits (UsersOrRolesRequest) returns (BoolReply) {}
+
+  /* 管理鉴权中心相关接口，通常不需要直接调用 */
+  /**
+    * @description 检查当前的enforcer是否为master
+    */
+  rpc IsMaster (EmptyRequest) returns (BoolReply) {}
+  /**
+    * @description 向Redis强制同步保存一次策略
+    */
+  rpc SavePolicy (EmptyRequest) returns (BoolReply) {}
+  /**
+    * @description 删除指定domain的策略
+    */
+  rpc RemoveDomainPolicies (EmptyRequest) returns (BoolReply) {}
+  /**
+    * @description 给指定域添加配置
+    */
+  rpc AddDomainConfig (DomainConfigRequest) returns (BoolReply) {}
+  /**
+    * @description 获取指定域的配置
+    */
+  rpc GetDomainConfig (EmptyRequest) returns (DomainConfigReply) {}
+  /**
+    * @description 删除指定域的配置
+    */
+  rpc RemoveDomainConfig (EmptyRequest) returns (BoolReply) {}
+  /**
+    * @description 给token添加指定域的权限
+    */
+  rpc AddTokenAccessForDomain (TokenAccessRequest) returns (BoolReply) {}
+  /**
+    * @description 获取全部token的权限列表
+    */
+  rpc GetTokenAccessList (EmptyRequest) returns (TokenAccessListReply) {}
+  /**
+    * @description 删除token对指定域的权限
+    */
+  rpc RemoveTokenAccessForDomain (TokenAccessRequest) returns (BoolReply) {}
+}
+
+message EmPolicy {
+  string roleCls = 1;
+  string userOrRole = 2;
+  string permission = 3;
+  string object = 4;
+  string effect = 5;
+}
+
+message EmGroupPolicy {
+  string child = 1;
+  string childRoleCls = 2;
+  string parent = 3;
+  string parentRoleCls = 4;
+}
+
+message PermissionUnit {
+  repeated EmPolicy policies = 1;
+  repeated EmGroupPolicy groupPolicies = 2;  
+}
+
+message PermissionUnitRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  PermissionUnit permissionUnit = 3;
+}
+
+message PermissionUnitsRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  repeated PermissionUnit permissionUnits = 3;
+}
+
+message PermissionUnitReply {
+  PermissionUnit permissionUnit = 1;
+}
+
+message PermissionUnitsReply {
+  repeated PermissionUnit permissionUnits = 1;
+}
+
+message PermissionUnitV2 {
+  string user = 1;
+  string role_cls = 2;
+  string role = 3;
+  repeated string permissions = 4;
+  string object = 5;
+  string effect = 6;
+}
+
+message PermissionUnitV2Request {
+  string enforcerName = 1;
+  string domain = 2;
+  PermissionUnitV2 permissionUnitV2 = 3;
+  bool checkExistFlag = 4;
+}
+
+message PermissionUnitsV2Request {
+  string enforcerName = 1;
+  string domain = 2;
+  repeated PermissionUnitV2 permissionUnitsV2 = 3;
+  bool checkExistFlag = 4;
+}
+
+message PermissionInfo {
+  repeated EmPolicy policies = 1;
+  repeated EmGroupPolicy userOrRoleGroupPolicies = 2;
+  repeated EmGroupPolicy objectGroupPolicies = 3;
+}
+
+message PermissionInfoReply {
+  PermissionInfo permissionInfo = 1;
+}
+
+message RolePermissionUnit {
+  string role_cls = 1;
+  string role = 2;
+  repeated PermissionsWithObject permissionsWithObject = 3;
+  string effect = 4;
+}
+
+message RolePermissionUnitRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  RolePermissionUnit rolePermissionUnit = 3;
+  bool replace = 4;
+}
+
+message RolePermissionUnitReply {
+  string role = 1;
+}
+
+message GroupPolicyRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  EmGroupPolicy groupPolicy = 3;
+}
+
+message GroupPoliciesRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  repeated EmGroupPolicy groupPolicies = 3;
+}
+
+message AclSearchRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  string user = 3;
+  string permission = 4;
+  string objectCls = 5;
+  string object = 6;
+  string objectGroup = 7;
+}
+
+message UserPermissionObjectPair {
+  string user = 1;
+  string permission = 2;
+  string object = 3;
+}
+
+message BatchAclSearchRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  repeated UserPermissionObjectPair pairs = 3;
+}
+
+message AclSearchExRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  string user = 3;
+  repeated string permissions = 4;
+  string objectCls = 5;
+  string object = 6;
+  repeated string objects = 7;
+  string objectGroup = 8;
+  bool searchChildObjectsFlag = 9;
+  bool reverseObjectsFlag = 10; 
+}
+
+message AclSearchForObjectTreesRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  string user = 3;
+  repeated string permissions = 4;
+  string object = 5;
+  bool reverseObjectsFlag = 6;
+  repeated string objectClsPatterns = 7;
+}
+
+message EmptyRequest {
+  string enforcerName = 1;
+  string domain = 2;
+}
+
+message EmptyReply {}
+
+message BoolReply {
+  bool res = 1;
+}
+
+message BoolArrayReply {
+  repeated bool res = 1;
+}
+
+message IntReply {
+  int32 res = 1;
+}
+
+message ArrayReply {
+  repeated string array = 1;
+}
+
+message RoleSearchRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  string user = 3;
+  string roleCls = 4;
+  string objectCls = 5;
+  string object = 6;
+}
+
+message UserOrRoleRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  string userOrRole = 3;
+}
+
+message UsersOrRolesRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  repeated string usersOrRoles = 3;
+}
+
+message UserOrRoleWithPatternRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  string userOrRole = 3;
+  repeated string userOrRoleClsPatterns = 4;
+}
+
+message UserOrRoleWithFlagRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  string userOrRole = 3;
+  bool searchChildObjectsFlag = 4;
+  int32 maxSearchChildObjectsLevel = 5;
+}
+
+message ObjectRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  string object = 3;
+}
+
+message ObjectsRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  repeated string objects = 3;
+}
+
+message ObjectWithPatternRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  string object = 3;
+  repeated string objectClsPatterns = 4;
+}
+
+message ObjectWithFlagRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  string object = 3;
+  bool searchChildUsersOrRolesFlag = 4;
+  int32 maxSearchChildUsersOrRolesLevel = 5;
+}
+
+message UserOrRoleAndObjectRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  string userOrRole = 3;
+  string object = 4;
+}
+
+message ReplacePermissionInfoForUserOrRoleRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  string oldUserOrRole = 3;
+  string newUserOrRole = 4;
+}
+
+message GroupPoliciesReply {
+  repeated EmGroupPolicy groupPolicies = 3;
+}
+
+message GroupPoliciesWithRoot {
+  string root = 1;
+  repeated EmGroupPolicy groupPolicies = 3;
+}
+
+message GroupPoliciesWithRootListReply {
+  repeated GroupPoliciesWithRoot groupPoliciesWithRootList = 1;
+}
+
+message PermissionsWithObject {
+  string object = 1;
+  repeated string permissions = 2;
+}
+
+message PermissionsWithObjectListReply {
+  repeated PermissionsWithObject permissionsWithObjectList = 1;
+}
+
+message DomainConfig {
+  message PermissionsOfObjectCls {
+    map<string, PermissionList> permissionsOfObjectClsMap = 1;
+  }
+  message PermissionList {
+    repeated string permissions = 1;
+  }
+  string enforcerName = 1;
+  string domain = 2;
+  map<string, PermissionsOfObjectCls> objectClsOfRoleClsMap = 3;
+  string getObjectClsFromObjectFuncName = 4;
+  string getRoleClsFromRoleFuncName = 5;
+}
+
+message DomainConfigRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  DomainConfig domainConfig = 3;
+}
+
+message DomainConfigReply {
+  DomainConfig domainConfig = 1;
+}
+
+message TokenAccess {
+  string enforcerName = 1;
+  string token = 2;
+  string domain = 3;
+  string permission = 4;
+}
+
+message TokenAccessListReply {
+  repeated TokenAccess tokenAccessList = 1;
+}
+
+message TokenAccessRequest {
+  string enforcerName = 1;
+  string domain = 2;
+  TokenAccess tokenAccess = 3;
+}
