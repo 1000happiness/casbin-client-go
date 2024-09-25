@@ -1,0 +1,15 @@
+stages:
+  - test
+
+format:
+  stage: test
+  image: hub.docker.em/opscenter-appcenter/golang:1.20
+  variables:
+    GO111MODULE: "on"
+    CGO_ENABLED: "0"
+    GOOS: "linux"
+    GOARCH: "amd64"
+    GOPROXY: "https://goproxy.cn,direct"
+  script:
+    - gofmt -l -s $(find . -type f -name '*.go' | grep -v vendor)
+    - test -z $(gofmt -l -s $(find . -type f -name '*.go' | grep -v vendor))
