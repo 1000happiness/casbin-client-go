@@ -66,6 +66,7 @@ func (c *CasbinHttpClient) customRequest(ctx context.Context, path string, reque
 	if err != nil {
 		return err
 	}
+	req = util.WrapperAuditInfo(req, c.approvers, c.message)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.token)
 
@@ -130,7 +131,7 @@ func (c *CasbinHttpClient) AddDomainConfig(ctx context.Context, domainConfig *co
 	}
 
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/AddDomainConfig", domainConfigRequest, reply)
+	err := c.customRequest(ctx, pb.Casbin_AddDomainConfig_FullMethodName, domainConfigRequest, reply)
 	if err != nil {
 		return err
 	}
@@ -140,7 +141,7 @@ func (c *CasbinHttpClient) AddDomainConfig(ctx context.Context, domainConfig *co
 
 func (c *CasbinHttpClient) GetDomainConfig(ctx context.Context) (*config.CasbinConfig, error) {
 	var reply *pb.DomainConfigReply = &pb.DomainConfigReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetDomainConfig", &pb.EmptyRequest{}, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetDomainConfig_FullMethodName, &pb.EmptyRequest{}, reply)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +188,7 @@ func (c *CasbinHttpClient) GetDomainConfig(ctx context.Context) (*config.CasbinC
 
 func (c *CasbinHttpClient) AddPermissionUnitV2(ctx context.Context, request *pb.PermissionUnitV2Request) (*pb.IntReply, error) {
 	var reply *pb.IntReply = &pb.IntReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/AddPermissionUnitV2", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_AddPermissionUnitV2_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.IntReply{}, err
 	}
@@ -197,7 +198,7 @@ func (c *CasbinHttpClient) AddPermissionUnitV2(ctx context.Context, request *pb.
 
 func (c *CasbinHttpClient) AddPermissionUnitsV2(ctx context.Context, request *pb.PermissionUnitsV2Request) (*pb.IntReply, error) {
 	var reply *pb.IntReply = &pb.IntReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/AddPermissionUnitV2", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_AddPermissionUnitV2_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.IntReply{}, err
 	}
@@ -207,7 +208,7 @@ func (c *CasbinHttpClient) AddPermissionUnitsV2(ctx context.Context, request *pb
 
 func (c *CasbinHttpClient) RemovePermissionUnitV2(ctx context.Context, request *pb.PermissionUnitV2Request) (*pb.IntReply, error) {
 	var reply *pb.IntReply = &pb.IntReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/RemovePermissionUnitV2", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_RemovePermissionUnitV2_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.IntReply{}, err
 	}
@@ -217,7 +218,7 @@ func (c *CasbinHttpClient) RemovePermissionUnitV2(ctx context.Context, request *
 
 func (c *CasbinHttpClient) RemovePermissionUnitsV2(ctx context.Context, request *pb.PermissionUnitsV2Request) (*pb.IntReply, error) {
 	var reply *pb.IntReply = &pb.IntReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/RemovePermissionUnitsV2", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_RemovePermissionUnitsV2_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.IntReply{}, err
 	}
@@ -227,7 +228,7 @@ func (c *CasbinHttpClient) RemovePermissionUnitsV2(ctx context.Context, request 
 
 func (c *CasbinHttpClient) RemovePermissionUnitsV2AndGroupPoliciesForUserOrRole(ctx context.Context, request *pb.UserOrRoleRequest) (*pb.EmptyReply, error) {
 	var reply *pb.EmptyReply = &pb.EmptyReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/RemovePermissionUnitsV2AndGroupPoliciesForUserOrRole", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_RemovePermissionUnitsV2AndGroupPoliciesForUserOrRole_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.EmptyReply{}, err
 	}
@@ -237,7 +238,7 @@ func (c *CasbinHttpClient) RemovePermissionUnitsV2AndGroupPoliciesForUserOrRole(
 
 func (c *CasbinHttpClient) RemovePermissionUnitsV2AndGroupPoliciesForObject(ctx context.Context, request *pb.ObjectRequest) (*pb.EmptyReply, error) {
 	var reply *pb.EmptyReply = &pb.EmptyReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/RemovePermissionUnitsV2AndGroupPoliciesForObject", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_RemovePermissionUnitsV2AndGroupPoliciesForObject_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.EmptyReply{}, err
 	}
@@ -247,7 +248,7 @@ func (c *CasbinHttpClient) RemovePermissionUnitsV2AndGroupPoliciesForObject(ctx 
 
 func (c *CasbinHttpClient) GetPermissionInfoForUserOrRole(ctx context.Context, request *pb.UserOrRoleWithFlagRequest) (*pb.PermissionInfoReply, error) {
 	var reply *pb.PermissionInfoReply = &pb.PermissionInfoReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetPermissionInfoForUserOrRole", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetPermissionInfoForUserOrRole_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.PermissionInfoReply{}, err
 	}
@@ -257,7 +258,7 @@ func (c *CasbinHttpClient) GetPermissionInfoForUserOrRole(ctx context.Context, r
 
 func (c *CasbinHttpClient) GetPermissionInfoForObject(ctx context.Context, request *pb.ObjectWithFlagRequest) (*pb.PermissionInfoReply, error) {
 	var reply *pb.PermissionInfoReply = &pb.PermissionInfoReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetPermissionInfoForObject", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetPermissionInfoForObject_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.PermissionInfoReply{}, err
 	}
@@ -267,7 +268,7 @@ func (c *CasbinHttpClient) GetPermissionInfoForObject(ctx context.Context, reque
 
 func (c *CasbinHttpClient) GetPermissionInfoForUserOrRoleAndObject(ctx context.Context, request *pb.UserOrRoleAndObjectRequest) (*pb.PermissionInfoReply, error) {
 	var reply *pb.PermissionInfoReply = &pb.PermissionInfoReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetPermissionInfoForUserOrRoleAndObject", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetPermissionInfoForUserOrRoleAndObject_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.PermissionInfoReply{}, err
 	}
@@ -277,7 +278,7 @@ func (c *CasbinHttpClient) GetPermissionInfoForUserOrRoleAndObject(ctx context.C
 
 func (c *CasbinHttpClient) ReplacePermissionInfoForUserOrRole(ctx context.Context, request *pb.ReplacePermissionInfoForUserOrRoleRequest) (*pb.PermissionInfoReply, error) {
 	var reply *pb.PermissionInfoReply = &pb.PermissionInfoReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/ReplacePermissionInfoForUserOrRole", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_ReplacePermissionInfoForUserOrRole_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.PermissionInfoReply{}, err
 	}
@@ -287,7 +288,7 @@ func (c *CasbinHttpClient) ReplacePermissionInfoForUserOrRole(ctx context.Contex
 
 func (c *CasbinHttpClient) GetObjectsForUserWithPermission(ctx context.Context, request *pb.AclSearchRequest) (*pb.ArrayReply, error) {
 	var reply *pb.ArrayReply = &pb.ArrayReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetObjectsForUserWithPermission", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetObjectsForUserWithPermission_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.ArrayReply{}, err
 	}
@@ -297,7 +298,7 @@ func (c *CasbinHttpClient) GetObjectsForUserWithPermission(ctx context.Context, 
 
 func (c *CasbinHttpClient) GetObjectsForUserWithPermissionsEx(ctx context.Context, request *pb.AclSearchExRequest) (*pb.ArrayReply, error) {
 	var reply *pb.ArrayReply = &pb.ArrayReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetObjectsForUserWithPermissionsEx", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetObjectsForUserWithPermissionsEx_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.ArrayReply{}, err
 	}
@@ -307,7 +308,7 @@ func (c *CasbinHttpClient) GetObjectsForUserWithPermissionsEx(ctx context.Contex
 
 func (c *CasbinHttpClient) GetObjectTreesForUserWithPermissions(ctx context.Context, request *pb.AclSearchForObjectTreesRequest) (*pb.GroupPoliciesReply, error) {
 	var reply *pb.GroupPoliciesReply = &pb.GroupPoliciesReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetObjectTreesForUserWithPermissions", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetObjectTreesForUserWithPermissions_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesReply{}, err
 	}
@@ -317,7 +318,7 @@ func (c *CasbinHttpClient) GetObjectTreesForUserWithPermissions(ctx context.Cont
 
 func (c *CasbinHttpClient) GetPermissionsForUserWithObject(ctx context.Context, request *pb.AclSearchRequest) (*pb.ArrayReply, error) {
 	var reply *pb.ArrayReply = &pb.ArrayReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetPermissionsForUserWithObject", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetPermissionsForUserWithObject_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.ArrayReply{}, err
 	}
@@ -327,7 +328,7 @@ func (c *CasbinHttpClient) GetPermissionsForUserWithObject(ctx context.Context, 
 
 func (c *CasbinHttpClient) GetPermissionsForUserWithObjectsEx(ctx context.Context, request *pb.AclSearchExRequest) (*pb.PermissionsWithObjectListReply, error) {
 	var reply *pb.PermissionsWithObjectListReply = &pb.PermissionsWithObjectListReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetPermissionsForUserWithObjectsEx", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetPermissionsForUserWithObjectsEx_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.PermissionsWithObjectListReply{}, err
 	}
@@ -337,7 +338,7 @@ func (c *CasbinHttpClient) GetPermissionsForUserWithObjectsEx(ctx context.Contex
 
 func (c *CasbinHttpClient) GetUsersOrRolesForObjectWithPermission(ctx context.Context, request *pb.AclSearchRequest) (*pb.ArrayReply, error) {
 	var reply *pb.ArrayReply = &pb.ArrayReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetUsersOrRolesForObjectWithPermission", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetUsersOrRolesForObjectWithPermission_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.ArrayReply{}, err
 	}
@@ -347,7 +348,7 @@ func (c *CasbinHttpClient) GetUsersOrRolesForObjectWithPermission(ctx context.Co
 
 func (c *CasbinHttpClient) CheckPermission(ctx context.Context, request *pb.AclSearchRequest) (*pb.BoolReply, error) {
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/CheckPermission", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_CheckPermission_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolReply{}, err
 	}
@@ -357,7 +358,7 @@ func (c *CasbinHttpClient) CheckPermission(ctx context.Context, request *pb.AclS
 
 func (c *CasbinHttpClient) BatchCheckPermission(ctx context.Context, request *pb.BatchAclSearchRequest) (*pb.BoolArrayReply, error) {
 	var reply *pb.BoolArrayReply = &pb.BoolArrayReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/BatchCheckPermission", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_BatchCheckPermission_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolArrayReply{}, err
 	}
@@ -367,7 +368,7 @@ func (c *CasbinHttpClient) BatchCheckPermission(ctx context.Context, request *pb
 
 func (c *CasbinHttpClient) AddUserOrRoleForUserOrRole(ctx context.Context, request *pb.GroupPolicyRequest) (*pb.BoolReply, error) {
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/AddUserOrRoleForUserOrRole", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_AddUserOrRoleForUserOrRole_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolReply{}, err
 	}
@@ -377,7 +378,7 @@ func (c *CasbinHttpClient) AddUserOrRoleForUserOrRole(ctx context.Context, reque
 
 func (c *CasbinHttpClient) AddUsersOrRolesForUsersOrRoles(ctx context.Context, request *pb.GroupPoliciesRequest) (*pb.BoolReply, error) {
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/AddUsersOrRolesForUsersOrRoles", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_AddUsersOrRolesForUsersOrRoles_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolReply{}, err
 	}
@@ -387,7 +388,7 @@ func (c *CasbinHttpClient) AddUsersOrRolesForUsersOrRoles(ctx context.Context, r
 
 func (c *CasbinHttpClient) RemoveUserOrRoleForUserOrRole(ctx context.Context, request *pb.GroupPolicyRequest) (*pb.BoolReply, error) {
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/RemoveUserOrRoleForUserOrRole", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_RemoveUserOrRoleForUserOrRole_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolReply{}, err
 	}
@@ -397,7 +398,7 @@ func (c *CasbinHttpClient) RemoveUserOrRoleForUserOrRole(ctx context.Context, re
 
 func (c *CasbinHttpClient) RemoveUsersOrRolesForUsersOrRoles(ctx context.Context, request *pb.GroupPoliciesRequest) (*pb.BoolReply, error) {
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/RemoveUsersOrRolesForUsersOrRoles", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_RemoveUsersOrRolesForUsersOrRoles_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolReply{}, err
 	}
@@ -407,7 +408,7 @@ func (c *CasbinHttpClient) RemoveUsersOrRolesForUsersOrRoles(ctx context.Context
 
 func (c *CasbinHttpClient) GetUsersOrRolesForUserOrRole(ctx context.Context, request *pb.UserOrRoleRequest) (*pb.GroupPoliciesReply, error) {
 	var reply *pb.GroupPoliciesReply = &pb.GroupPoliciesReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetUsersOrRolesForUserOrRole", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetUsersOrRolesForUserOrRole_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesReply{}, err
 	}
@@ -417,7 +418,7 @@ func (c *CasbinHttpClient) GetUsersOrRolesForUserOrRole(ctx context.Context, req
 
 func (c *CasbinHttpClient) GetUsersOrRolesForUsersOrRoles(ctx context.Context, request *pb.UsersOrRolesRequest) (*pb.GroupPoliciesWithRootListReply, error) {
 	var reply *pb.GroupPoliciesWithRootListReply = &pb.GroupPoliciesWithRootListReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetUsersOrRolesForUsersOrRoles", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetUsersOrRolesForUsersOrRoles_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesWithRootListReply{}, err
 	}
@@ -427,7 +428,7 @@ func (c *CasbinHttpClient) GetUsersOrRolesForUsersOrRoles(ctx context.Context, r
 
 func (c *CasbinHttpClient) GetUsersOrRolesInUserOrRole(ctx context.Context, request *pb.UserOrRoleRequest) (*pb.GroupPoliciesReply, error) {
 	var reply *pb.GroupPoliciesReply = &pb.GroupPoliciesReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetUsersOrRolesInUserOrRole", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetUsersOrRolesInUserOrRole_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesReply{}, err
 	}
@@ -437,7 +438,7 @@ func (c *CasbinHttpClient) GetUsersOrRolesInUserOrRole(ctx context.Context, requ
 
 func (c *CasbinHttpClient) GetUsersOrRolesInUsersOrRoles(ctx context.Context, request *pb.UsersOrRolesRequest) (*pb.GroupPoliciesWithRootListReply, error) {
 	var reply *pb.GroupPoliciesWithRootListReply = &pb.GroupPoliciesWithRootListReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetUsersOrRolesInUsersOrRoles", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetUsersOrRolesInUsersOrRoles_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesWithRootListReply{}, err
 	}
@@ -447,7 +448,7 @@ func (c *CasbinHttpClient) GetUsersOrRolesInUsersOrRoles(ctx context.Context, re
 
 func (c *CasbinHttpClient) GetUsersOrRolesForUserOrRoleWithPattern(ctx context.Context, request *pb.UserOrRoleWithPatternRequest) (*pb.GroupPoliciesReply, error) {
 	var reply *pb.GroupPoliciesReply = &pb.GroupPoliciesReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetUsersOrRolesForUserOrRoleWithPattern", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetUsersOrRolesForUserOrRoleWithPattern_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesReply{}, err
 	}
@@ -457,7 +458,7 @@ func (c *CasbinHttpClient) GetUsersOrRolesForUserOrRoleWithPattern(ctx context.C
 
 func (c *CasbinHttpClient) GetUsersOrRolesInUserOrRoleWithPattern(ctx context.Context, request *pb.UserOrRoleWithPatternRequest) (*pb.GroupPoliciesReply, error) {
 	var reply *pb.GroupPoliciesReply = &pb.GroupPoliciesReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetUsersOrRolesInUserOrRoleWithPattern", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetUsersOrRolesInUserOrRoleWithPattern_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesReply{}, err
 	}
@@ -467,7 +468,7 @@ func (c *CasbinHttpClient) GetUsersOrRolesInUserOrRoleWithPattern(ctx context.Co
 
 func (c *CasbinHttpClient) AddObjectForObject(ctx context.Context, request *pb.GroupPolicyRequest) (*pb.BoolReply, error) {
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/AddObjectForObject", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_AddObjectForObject_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolReply{}, err
 	}
@@ -477,7 +478,7 @@ func (c *CasbinHttpClient) AddObjectForObject(ctx context.Context, request *pb.G
 
 func (c *CasbinHttpClient) AddObjectsForObjects(ctx context.Context, request *pb.GroupPoliciesRequest) (*pb.BoolReply, error) {
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/AddObjectsForObjects", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_AddObjectsForObjects_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolReply{}, err
 	}
@@ -487,7 +488,7 @@ func (c *CasbinHttpClient) AddObjectsForObjects(ctx context.Context, request *pb
 
 func (c *CasbinHttpClient) RemoveObjectForObject(ctx context.Context, request *pb.GroupPolicyRequest) (*pb.BoolReply, error) {
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/RemoveObjectForObject", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_RemoveObjectForObject_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolReply{}, err
 	}
@@ -497,7 +498,7 @@ func (c *CasbinHttpClient) RemoveObjectForObject(ctx context.Context, request *p
 
 func (c *CasbinHttpClient) RemoveObjectsForObjects(ctx context.Context, request *pb.GroupPoliciesRequest) (*pb.BoolReply, error) {
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/RemoveObjectsForObjects", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_RemoveObjectsForObjects_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolReply{}, err
 	}
@@ -507,7 +508,7 @@ func (c *CasbinHttpClient) RemoveObjectsForObjects(ctx context.Context, request 
 
 func (c *CasbinHttpClient) GetObjectsForObject(ctx context.Context, request *pb.ObjectRequest) (*pb.GroupPoliciesReply, error) {
 	var reply *pb.GroupPoliciesReply = &pb.GroupPoliciesReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetObjectsForObject", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetObjectsForObject_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesReply{}, err
 	}
@@ -517,7 +518,7 @@ func (c *CasbinHttpClient) GetObjectsForObject(ctx context.Context, request *pb.
 
 func (c *CasbinHttpClient) GetObjectsForObjects(ctx context.Context, request *pb.ObjectsRequest) (*pb.GroupPoliciesWithRootListReply, error) {
 	var reply *pb.GroupPoliciesWithRootListReply = &pb.GroupPoliciesWithRootListReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetObjectsForObjects", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetObjectsForObjects_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesWithRootListReply{}, err
 	}
@@ -527,7 +528,7 @@ func (c *CasbinHttpClient) GetObjectsForObjects(ctx context.Context, request *pb
 
 func (c *CasbinHttpClient) GetObjectsInObject(ctx context.Context, request *pb.ObjectRequest) (*pb.GroupPoliciesReply, error) {
 	var reply *pb.GroupPoliciesReply = &pb.GroupPoliciesReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetObjectsInObject", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetObjectsInObject_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesReply{}, err
 	}
@@ -537,7 +538,7 @@ func (c *CasbinHttpClient) GetObjectsInObject(ctx context.Context, request *pb.O
 
 func (c *CasbinHttpClient) GetObjectsInObjects(ctx context.Context, request *pb.ObjectsRequest) (*pb.GroupPoliciesWithRootListReply, error) {
 	var reply *pb.GroupPoliciesWithRootListReply = &pb.GroupPoliciesWithRootListReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetObjectsInObjects", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetObjectsInObjects_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesWithRootListReply{}, err
 	}
@@ -547,7 +548,7 @@ func (c *CasbinHttpClient) GetObjectsInObjects(ctx context.Context, request *pb.
 
 func (c *CasbinHttpClient) GetObjectsForObjectWithPattern(ctx context.Context, request *pb.ObjectWithPatternRequest) (*pb.GroupPoliciesReply, error) {
 	var reply *pb.GroupPoliciesReply = &pb.GroupPoliciesReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetObjectsForObjectWithPattern", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetObjectsForObjectWithPattern_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesReply{}, err
 	}
@@ -557,7 +558,7 @@ func (c *CasbinHttpClient) GetObjectsForObjectWithPattern(ctx context.Context, r
 
 func (c *CasbinHttpClient) GetObjectsInObjectWithPattern(ctx context.Context, request *pb.ObjectWithPatternRequest) (*pb.GroupPoliciesReply, error) {
 	var reply *pb.GroupPoliciesReply = &pb.GroupPoliciesReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/GetObjectsInObjectWithPattern", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_GetObjectsInObjectWithPattern_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.GroupPoliciesReply{}, err
 	}
@@ -567,7 +568,7 @@ func (c *CasbinHttpClient) GetObjectsInObjectWithPattern(ctx context.Context, re
 
 func (c *CasbinHttpClient) AddRolePermissionUnit(ctx context.Context, request *pb.RolePermissionUnitRequest) (*pb.RolePermissionUnitReply, error) {
 	var reply *pb.RolePermissionUnitReply = &pb.RolePermissionUnitReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/AddRolePermissionUnit", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_AddRolePermissionUnit_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.RolePermissionUnitReply{}, err
 	}
@@ -577,7 +578,7 @@ func (c *CasbinHttpClient) AddRolePermissionUnit(ctx context.Context, request *p
 
 func (c *CasbinHttpClient) RemoveRolePermissionUnit(ctx context.Context, request *pb.UserOrRoleRequest) (*pb.BoolReply, error) {
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/RemoveRolePermissionUnit", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_RemoveRolePermissionUnit_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolReply{}, err
 	}
@@ -587,7 +588,7 @@ func (c *CasbinHttpClient) RemoveRolePermissionUnit(ctx context.Context, request
 
 func (c *CasbinHttpClient) RemoveRolePermissionUnits(ctx context.Context, request *pb.UserOrRoleRequest) (*pb.BoolReply, error) {
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/RemoveRolePermissionUnits", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_RemoveRolePermissionUnits_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolReply{}, err
 	}
@@ -597,7 +598,7 @@ func (c *CasbinHttpClient) RemoveRolePermissionUnits(ctx context.Context, reques
 
 func (c *CasbinHttpClient) IsMaster(ctx context.Context, request *pb.EmptyRequest) (*pb.BoolReply, error) {
 	var reply *pb.BoolReply = &pb.BoolReply{}
-	err := c.customRequest(ctx, "/proto.Casbin/IsMaster", request, reply)
+	err := c.customRequest(ctx, pb.Casbin_IsMaster_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.BoolReply{}, err
 	}
