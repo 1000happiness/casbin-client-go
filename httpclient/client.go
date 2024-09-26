@@ -30,7 +30,7 @@ type CasbinHttpClient struct {
 	config *config.CasbinConfig
 }
 
-func NewHttpClient(baseUrl string, name string, domain string, token string, approvers []string, message string) (*CasbinHttpClient, error) {
+func NewCasbinHttpClient(baseUrl string, name string, domain string, token string, approvers []string, message string) (*CasbinHttpClient, error) {
 	hc := http.Client{}
 
 	c := &CasbinHttpClient{
