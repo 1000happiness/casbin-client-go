@@ -55,6 +55,28 @@ func NewCasbinHttpClient(baseUrl string, name string, domain string, token strin
 	return c, nil
 }
 
+func (c *CasbinHttpClient) SetDomain(domain string) *CasbinHttpClient {
+	c.domain = domain
+	return c
+}
+
+func (c *CasbinHttpClient) ResetDomain() *CasbinHttpClient {
+	c.domain = c.originDomain
+	return c
+}
+
+func (c *CasbinHttpClient) SetAuditData(approvers []string, message string) *CasbinHttpClient {
+	c.approvers = approvers
+	c.message = message
+	return c
+}
+
+func (c *CasbinHttpClient) ResetAuditData() *CasbinHttpClient {
+	c.approvers = c.originApprovers
+	c.message = c.originMessage
+	return c
+}
+
 func (c *CasbinHttpClient) customRequest(ctx context.Context, path string, request interface{}, reply interface{}) error {
 	c.customSetEnforcerNameAndDomain(request)
 	requestJson, err := json.Marshal(request)
