@@ -97,6 +97,19 @@ func (c *CasbinHttpClient) customRequest(ctx context.Context, path string, reque
 		return err
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusInternalServerError {
+			// 尝试取grpc-status和grpc-message，如果grpc服务报错，会将grpc-status和grpc-message放在header中
+			grpcStatus := resp.Header.Get("grpc-status")
+			grpcMessage := resp.Header.Get("grpc-message")
+			if grpcStatus != "" && grpcMessage != "" {
+				return errors.New("response error grpc-status: " + grpcStatus + ", grpc-message: " + grpcMessage)
+			}
+		}
+
+		return errors.New("response error status code: " + resp.Status)
+	}
+
 	defer resp.Body.Close()
 
 	err = json.NewDecoder(resp.Body).Decode(&reply)
