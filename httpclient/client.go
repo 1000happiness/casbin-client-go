@@ -11,6 +11,8 @@ import (
 	"github.com/1000happiness/casbin-client-go/config"
 	pb "github.com/1000happiness/casbin-client-go/proto"
 	"github.com/1000happiness/casbin-client-go/util"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 type CasbinHttpClient struct {
@@ -91,6 +93,8 @@ func (c *CasbinHttpClient) customRequest(ctx context.Context, path string, reque
 	req = util.WrapperAuditInfo(req, c.approvers, c.message)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.token)
+
+	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 
 	resp, err := c.hc.Do(req)
 	if err != nil {
