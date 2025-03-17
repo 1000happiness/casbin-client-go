@@ -237,7 +237,7 @@ func (c *CasbinHttpClient) AddPermissionUnitV2(ctx context.Context, request *pb.
 
 func (c *CasbinHttpClient) AddPermissionUnitsV2(ctx context.Context, request *pb.PermissionUnitsV2Request) (*pb.IntReply, error) {
 	var reply *pb.IntReply = &pb.IntReply{}
-	err := c.customRequest(ctx, pb.Casbin_AddPermissionUnitV2_FullMethodName, request, reply)
+	err := c.customRequest(ctx, pb.Casbin_AddPermissionUnitsV2_FullMethodName, request, reply)
 	if err != nil {
 		return &pb.IntReply{}, err
 	}
